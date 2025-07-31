@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 import { userRouter } from './Routes/userRouter.js';
 import { connectDB } from './DB/connectDB.js';
 import  bookRouter  from './Routes/bookRouter.js';
@@ -8,6 +9,7 @@ import  bookRouter  from './Routes/bookRouter.js';
 const app= express();
 
 app.use(express.json()); //
+app.use(cookieParser());
 
 
 app.use(cors({

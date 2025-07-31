@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import userModel from '../Models/userModel.js';
+import jwt from 'jsonwebtoken'
 
 // -----------------------
 // 📥 Signup
@@ -22,6 +23,20 @@ export const Signup = async (req, res) => {
     });
 
     await newUser.save();
+    const userId = newUser._id
+
+    
+    const token = jwt.sign({ userId }, 'sp',
+       { expiresIn: '7d'}
+    );
+
+
+    res.cookie('tokenCover', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
 
     res.status(201).json({
       success: true,
@@ -50,6 +65,21 @@ export const Login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ success: false, msg: 'Invalid credentials' });
+
+    const userId = user._id
+
+    
+    const token = jwt.sign({ userId }, 'sp',
+       { expiresIn: '7d'}
+    );
+
+
+    res.cookie('tokenCover', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
 
     res.status(200).json({
       success: true,

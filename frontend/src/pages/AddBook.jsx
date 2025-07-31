@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { 
   BookOpen, 
   Upload, 
@@ -119,7 +120,7 @@ const AddBook = () => {
     try {
       // Simulate API call
       formData2.append("title", formData.title);
-      formData2.append("coverimage", coverImage);
+      formData2.append("coverImage", coverImage);
       formData2.append("file", bookfile)
 formData2.append("authorName", formData.authorName);
 formData2.append("genre", formData.genre);
@@ -132,7 +133,9 @@ formData2.append("price", formData.price);
 
       await new Promise(resolve => setTimeout(resolve, 2000));
       console.log("at calling")
-      const res = await axios.post("http://localhost:3000/api/book/add-book" , formData2 , {withCredentials : true})
+      const res = await axios.post("http://localhost:3000/api/book/add-book" , formData2 , {withCredentials : true , headers: {
+        "Content-Type": "multipart/form-data",
+      },} )
       // Handle success
       alert('Book added successfully!');
       setFormData({
