@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { userModel } from '../models/User.js';
+import userModel from '../Models/userModel.js';
 
 // -----------------------
 // 📥 Signup

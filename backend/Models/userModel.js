@@ -1,6 +1,7 @@
 // models/User.js
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
+
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -35,10 +36,9 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Purchase'
   }],
-  joinedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  
+},
+{timestamps: true});
 
-module.exports = mongoose.model('User', userSchema);
+let userModel;
+export  default  userModel = mongoose.model('User', userSchema);

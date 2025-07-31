@@ -7,21 +7,48 @@ import {
   purchaseBook
 } from '../Controllers/bookController.js';
 
+
+import { protect } from '../Middleware/protect.js';
+import { uploadBookFiles } from '../Middleware/uploadMiddleware.js';
+
 const bookRouter = express.Router();
 
-// ➕ Add a book
-bookRouter.post('/add', addBook);
 
-// 📄 Get details of a single book
+
+
+bookRouter.post('/add-book', protect , uploadBookFiles,   addBook);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bookRouter.get('/details/:id', getBookDetails);
 
-// 📚 Get all books
 bookRouter.get('/all', getAllBooks);
 
-// 👤 Get all books published by a specific user
 bookRouter.get('/my-books/:userId', getMyBooks);
 
-// 🛒 Purchase a book
 bookRouter.post('/purchase', purchaseBook);
 
 export default bookRouter;

@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { userRouter } from './Routes/userRouter.js';
 import { connectDB } from './DB/connectDB.js';
-import { bookRouter } from './Routes/bookRouter.js';
+import  bookRouter  from './Routes/bookRouter.js';
 
 
 const app= express();
@@ -17,7 +17,7 @@ app.use(cors({
 }));
 
 
-app.get('/', (res,req)=>{
+app.get('/', (req,res)=>{
  res.send("this one is backend")
 })
 

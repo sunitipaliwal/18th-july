@@ -1,6 +1,5 @@
-import Book from '../models/Book.js';
-import { BookModel } from "../Models/bookModel.js";
-import User from '../models/User.js';
+import {bookModel} from "../Models/bookModel.js"
+import userModel from '../Models/userModel.js';
 
 // ------------------------
 // ➕ Add Book
@@ -8,16 +7,23 @@ import User from '../models/User.js';
 export const addBook = async (req, res) => {
   try {
     const { title, authorName, genre, description} = req.body;
-    // const userId = req.body.userId;
+    const user = req.user;
 
-    const newBook = new Book({
+    const coverImageFile = req.files.coverImageUrl?.[0];
+    const bookFile = req.files['fileUrl']?.[0];
+
+    if (!coverImageFile || !bookFile) {
+      return res.status(400).json({ success: false, message: 'Both cover image and file are required' });
+    }
+
+    const newBook = new bookModel ({
       title,
       authorName,
       genre,
       description,
-      fileUrl,
-      coverImageUrl,
-      publishedBy: userId
+      fileUrl  : bookFile.path,
+      coverImageUrl : coverImageFile.path,
+      publishedBy: user._id
     });
 
     await newBook.save();

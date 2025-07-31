@@ -26,19 +26,19 @@ const AddBook = () => {
     authorName: '',
     genre: '',
     description: '',
-    fileUrl: '',
-    coverImageUrl: '',
+   
     bookLength: '',
     price: ''
   });
 
   const [coverImage, setCoverImage] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState(null);
-
+  const formData2= new FormData();
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [bookfile, setBookfile]= useState(null);
 
   const genres = [
     'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Science Fiction', 
@@ -67,6 +67,7 @@ const AddBook = () => {
     const file = e.target.files[0];
     if (file) {
       setCoverImage(file);
+     
       
       // Create preview URL
       const reader = new FileReader();
@@ -101,7 +102,7 @@ const AddBook = () => {
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.authorName.trim()) newErrors.authorName = 'Author name is required';
     if (!formData.genre) newErrors.genre = 'Please select a genre';
-    if (!formData.fileUrl.trim()) newErrors.fileUrl = 'Book file URL is required';
+   
     if (!formData.bookLength || formData.bookLength <= 0) newErrors.bookLength = 'Book length must be a positive number';
     if (!formData.price || formData.price < 0) newErrors.price = 'Price must be a positive number';
     if (formData.description.length > 1000) newErrors.description = 'Description must be less than 1000 characters';
@@ -117,8 +118,21 @@ const AddBook = () => {
     
     try {
       // Simulate API call
+      formData2.append("title", formData.title);
+      formData2.append("coverimage", coverImage);
+      formData2.append("file", bookfile)
+formData2.append("authorName", formData.authorName);
+formData2.append("genre", formData.genre);
+formData2.append("description", formData.description);
+formData2.append("bookLength", formData.bookLength);
+formData2.append("price", formData.price);
+      for (let pair of formData2.entries()) {
+  console.log(pair[0] + ':', pair[1]);
+}
+
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const res = await axios.post("http://localhost:3000/api/book/add-book" , formData , {withCredentials : true})
+      console.log("at calling")
+      const res = await axios.post("http://localhost:3000/api/book/add-book" , formData2 , {withCredentials : true})
       // Handle success
       alert('Book added successfully!');
       setFormData({
@@ -126,8 +140,7 @@ const AddBook = () => {
         authorName: '',
         genre: '',
         description: '',
-        fileUrl: '',
-        coverImageUrl: '',
+        
         bookLength: '',
         price: ''
       });
@@ -162,6 +175,7 @@ const AddBook = () => {
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       // Handle file upload logic here
+     setBookfile(e.dataTransfer.files[0]);
       console.log('File dropped:', e.dataTransfer.files[0]);
     }
   };
