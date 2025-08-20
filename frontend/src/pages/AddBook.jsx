@@ -8,17 +8,13 @@ import {
   FileText, 
   User, 
   Tag, 
-  Calendar, 
   Clock,
   Star,
   Eye,
   EyeOff,
-  Check,
   X,
   Zap,
-  Sparkles,
-  Crown,
-  TrendingUp
+  Sparkles
 } from 'lucide-react';
 
 const AddBook = () => {
@@ -27,19 +23,17 @@ const AddBook = () => {
     authorName: '',
     genre: '',
     description: '',
-   
     bookLength: '',
     price: ''
   });
 
   const [coverImage, setCoverImage] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState(null);
-  const formData2= new FormData();
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [bookfile, setBookfile]= useState(null);
+  const [bookfile, setBookfile] = useState(null);
 
   const genres = [
     'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Science Fiction', 
@@ -47,15 +41,12 @@ const AddBook = () => {
     'Business', 'Health', 'Travel', 'Cooking', 'Art', 'Poetry'
   ];
 
-  const handleInputChange = async(e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  //  const res = await axios.post("http://localhost:3000/api/book/add-book" , bookData , {withCredentials : true})
-    
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -65,24 +56,14 @@ const AddBook = () => {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       setCoverImage(file);
-     
-      
-      // Create preview URL
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImagePreview(reader.result);
-      };
+      reader.onloadend = () => setCoverImagePreview(reader.result);
       reader.readAsDataURL(file);
-      
-      // Clear any existing error
       if (errors.coverImage) {
-        setErrors(prev => ({
-          ...prev,
-          coverImage: ''
-        }));
+        setErrors(prev => ({ ...prev, coverImage: '' }));
       }
     }
   };
@@ -90,72 +71,90 @@ const AddBook = () => {
   const handleRemoveImage = () => {
     setCoverImage(null);
     setCoverImagePreview(null);
-    // Clear the file input
     const fileInput = document.getElementById('cover-image-input');
-    if (fileInput) {
-      fileInput.value = '';
-    }
+    if (fileInput) fileInput.value = '';
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.authorName.trim()) newErrors.authorName = 'Author name is required';
     if (!formData.genre) newErrors.genre = 'Please select a genre';
-   
-    if (!formData.bookLength || formData.bookLength <= 0) newErrors.bookLength = 'Book length must be a positive number';
-    if (!formData.price || formData.price < 0) newErrors.price = 'Price must be a positive number';
-    if (formData.description.length > 1000) newErrors.description = 'Description must be less than 1000 characters';
-    
+    if (!formData.bookLength || Number(formData.bookLength) <= 0) {
+      newErrors.bookLength = 'Book length must be a positive number';
+    }
+    if (formData.price === '' || Number(formData.price) < 0) {
+      newErrors.price = 'Price must be a positive number';
+    }
+    if (formData.description.length > 1000) {
+      newErrors.description = 'Description must be less than 1000 characters';
+    }
+    if (!bookfile) newErrors.bookFile = 'Please upload a book file';
+    if (!coverImage) newErrors.coverImage = 'Please upload a cover image';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Simulate API call
-      formData2.append("title", formData.title);
-      formData2.append("coverImage", coverImage);
-      formData2.append("file", bookfile)
-formData2.append("authorName", formData.authorName);
-formData2.append("genre", formData.genre);
-formData2.append("description", formData.description);
-formData2.append("bookLength", formData.bookLength);
-formData2.append("price", formData.price);
-      for (let pair of formData2.entries()) {
-  console.log(pair[0] + ':', pair[1]);
-}
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log("at calling")
-      const res = await axios.post("http://localhost:3000/api/book/add-book" , formData2 , {withCredentials : true , headers: {
-        "Content-Type": "multipart/form-data",
-      },} )
-      // Handle success
+    setIsSubmitting(true);
+    try {
+      const submitFormData = new FormData();
+      submitFormData.append("title", formData.title);
+      submitFormData.append("authorName", formData.authorName);
+      submitFormData.append("genre", formData.genre);
+      submitFormData.append("description", formData.description);
+      submitFormData.append("bookLength", formData.bookLength);
+      submitFormData.append("price", formData.price);
+      if (coverImage) submitFormData.append("coverImage", coverImage);  // matches backend
+      if (bookfile) submitFormData.append("file", bookfile);            // matches backend
+
+      // Optional: debug
+      // for (let pair of submitFormData.entries()) console.log(pair[0] + ':', pair[1]);
+
+      const res = await axios.post(
+        "http://localhost:3000/api/book/add-book",
+        submitFormData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
       alert('Book added successfully!');
+
       setFormData({
         title: '',
         authorName: '',
         genre: '',
         description: '',
-        
         bookLength: '',
         price: ''
       });
       setCoverImage(null);
       setCoverImagePreview(null);
-      // Clear file input
-      const fileInput = document.getElementById('cover-image-input');
-      if (fileInput) {
-        fileInput.value = '';
-      }
+      setBookfile(null);
+      setErrors({});
+
+      const coverInput = document.getElementById("cover-image-input");
+      if (coverInput) coverInput.value = "";
+      const bookInput = document.getElementById("book-file-input");
+      if (bookInput) bookInput.value = "";
     } catch (error) {
-      alert('Error adding book. Please try again.');
+      console.error('Error details:', error.response?.data || error.message);
+      let errorMessage = 'Error adding book. Please try again.';
+      if (typeof error.response?.data === 'string') {
+        if (error.response.data.includes('MulterError: File too large')) {
+          errorMessage = 'File size is too large. Please choose a smaller file (max 100MB).';
+        } else {
+          errorMessage = error.response.data;
+        }
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,22 +163,19 @@ formData2.append("price", formData.price);
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
+    else if (e.type === "dragleave") setDragActive(false);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      // Handle file upload logic here
-     setBookfile(e.dataTransfer.files[0]);
-      console.log('File dropped:', e.dataTransfer.files[0]);
+      setBookfile(e.dataTransfer.files);
+      if (errors.bookFile) {
+        setErrors(prev => ({ ...prev, bookFile: '' }));
+      }
     }
   };
 
@@ -324,17 +320,15 @@ formData2.append("price", formData.price);
                 </div>
               </div>
 
-              {/* File Upload */}
+              {/* Files & Media */}
               <div className="space-y-6">
                 <SectionHeader icon={Upload} title="Files & Media" />
                 
-                <div className="grid grid-cols-1  gap-6">
-                 
-                  
+                <div className="grid grid-cols-1 gap-6">
                   {/* Cover Image Upload */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-700">
-                      Cover Image
+                      Cover Image <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -392,24 +386,64 @@ formData2.append("price", formData.price);
                   min="1"
                 />
 
-                {/* File Drop Zone */}
-                <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-300 ${
-                    dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
-                  }`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">Drop files here or click to upload</p>
-                  <p className="text-sm text-gray-500">Supports PDF, EPUB, MOBI files</p>
+                {/* File Drop Zone with hidden input for click-to-upload */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Book File <span className="text-red-500">*</span>
+                  </label>
+
+                  <input
+                    type="file"
+                    id="book-file-input"
+                    accept=".pdf,.epub,.mobi,.txt,.doc,.docx,application/pdf,application/epub+zip,application/x-mobipocket-ebook,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setBookfile(f);
+                        if (errors.bookFile) {
+                          setErrors(prev => ({ ...prev, bookFile: '' }));
+                        }
+                      }
+                    }}
+                    className="hidden"
+                  />
+
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => document.getElementById('book-file-input')?.click()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        document.getElementById('book-file-input')?.click();
+                      }
+                    }}
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-300 ${
+                      dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-2">Drop files here or click to upload</p>
+                    <p className="text-sm text-gray-500">Supports PDF, EPUB, MOBI, TXT, DOC, DOCX</p>
+                    
+                    {bookfile && (
+                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-sm text-green-700 font-medium">
+                          ✓ File selected: {bookfile.name}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {errors.bookFile && <p className="text-red-500 text-sm mt-2">{errors.bookFile}</p>}
                 </div>
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-end space-x-4 pt-8 border-t border-gray-200">
+              <div className="flex justify-end space-x-4 pt-8 border-top border-gray-200">
                 <button
                   type="button"
                   className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300"
@@ -419,18 +453,17 @@ formData2.append("price", formData.price);
                       authorName: '',
                       genre: '',
                       description: '',
-                      fileUrl: '',
-                      coverImageUrl: '',
                       bookLength: '',
                       price: ''
                     });
                     setCoverImage(null);
                     setCoverImagePreview(null);
-                    // Clear file input
+                    setBookfile(null);
+                    setErrors({});
                     const fileInput = document.getElementById('cover-image-input');
-                    if (fileInput) {
-                      fileInput.value = '';
-                    }
+                    if (fileInput) fileInput.value = '';
+                    const bookInput = document.getElementById('book-file-input');
+                    if (bookInput) bookInput.value = '';
                   }}
                 >
                   Clear Form
@@ -449,7 +482,7 @@ formData2.append("price", formData.price);
                   ) : (
                     <>
                       <Zap className="h-5 w-5" />
-                      <span >Publish Book</span>
+                      <span>Publish Book</span>
                     </>
                   )}
                 </button>

@@ -38,7 +38,7 @@ const Navbar = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-1">
               <NavLink href="/" icon={Home} text="Home" />
-              <NavLink href="/browse" icon={Grid3X3} text="Browse" />
+              <NavLink href="/search" icon={Grid3X3} text="Browse" />
               <NavLink href="/add-book" icon={Plus} text="Add Book" />
               <NavLink href="/my-library" icon={Library} text="My Library" />
             </div>

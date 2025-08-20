@@ -42,11 +42,10 @@ const Signup = () => {
       }
      
     } catch (error) {
-      console.error("Signup error:", error);
-      
-      alert("Something went wrong. Please try again.");
-      setIsLoading(false);
-    }
+console.error("Signup error response:", error.response?.data);
+alert(error.response?.data?.message || "Something went wrong. Please try again.");
+setIsLoading(false);
+}
   };
 
   return (

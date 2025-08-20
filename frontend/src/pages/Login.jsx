@@ -23,7 +23,8 @@ const Login = () => {
 
       if (res.data.success) {
         setIsLoggedIn(true);
-        navigate("/");
+       navigate("/profile");
+
         alert('Login successful');
       } else {
         alert(res.data.msg || 'Login failed');

@@ -9,6 +9,8 @@ import Footer from './components/Footer'
 import Search from './pages/Search'
 import MyBook from './pages/MyBook'
 import AddBook from './pages/AddBook'
+import Profile from './pages/Profile';
+
 
 
 const App = () => {
@@ -22,6 +24,10 @@ const App = () => {
        <Route path='/my-book' element={<MyBook/>}/>
        <Route path='/add-book' element={<AddBook/>}/>
        <Route path='/logout' element={<Logout/>}/>
+    
+<Route path='/profile' element={<Profile/>}/>
+
+
        
        <Route path='/' element={<Home/>}/>
        
