@@ -8,7 +8,10 @@ export const protect = async (req, res, next) => {
     const token = req.cookies.tokenCover;
 
 
-    if (!token) return res.status(401).json({ success: false, msg: 'Not authorized, no token' });4
+   if (!token) return res.status(401).json({ success: false, msg: 'Not authorized, no token' });
+
+
+
 
     const decoded = jwt.verify(token, 'sp');
 

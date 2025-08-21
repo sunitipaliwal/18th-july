@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 // -----------------------
 export const Signup = async (req, res) => {
   try {
+    console.log('Signup body:', req.body); 
     const { username, email, password } = req.body;
 
     const existingUser = await userModel.findOne({ email });
@@ -25,11 +26,9 @@ export const Signup = async (req, res) => {
     await newUser.save();
     const userId = newUser._id
 
-    
     const token = jwt.sign({ userId }, 'sp',
        { expiresIn: '7d'}
     );
-
 
     res.cookie('tokenCover', token, {
         httpOnly: true,
@@ -53,6 +52,7 @@ export const Signup = async (req, res) => {
   }
 };
 
+
 // -----------------------
 // 🔐 Login
 // -----------------------
@@ -68,11 +68,9 @@ export const Login = async (req, res) => {
 
     const userId = user._id
 
-    
     const token = jwt.sign({ userId }, 'sp',
        { expiresIn: '7d'}
     );
-
 
     res.cookie('tokenCover', token, {
         httpOnly: true,
@@ -95,26 +93,32 @@ export const Login = async (req, res) => {
   }
 };
 
+
 // -----------------------
 // 🚪 Logout
 // -----------------------
 export const Logout = async (req, res) => {
   try {
-    // Since no cookie/token, just simulate logout
+    // Clear cookie
+    res.clearCookie("tokenCover");
     res.status(200).json({ success: true, msg: 'Logged out successfully' });
   } catch (err) {
     res.status(500).json({ msg: 'Error logging out' });
   }
 };
 
+
 // -----------------------
-// 👤 Get Profile
+// 👤 Get Profile (UPDATED)
 // -----------------------
 export const getProfile = async (req, res) => {
   try {
-    const { userId } = req.body;
+    // ✅ Now using protect middleware: req.user is already there
+    const user = await userModel.findById(req.user._id)
+      .select('-password')
+      .populate('publishedBooks')
+      .populate('favorites');
 
-    const user = await userModel.findById(userId).select('-password');
     if (!user) return res.status(404).json({ success: false, msg: 'User not found' });
 
     res.status(200).json({ success: true, user });

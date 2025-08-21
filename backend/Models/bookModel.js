@@ -1,7 +1,4 @@
-// models/Book.js
 import mongoose from 'mongoose';
-
-
 
 const bookSchema = new mongoose.Schema({
   title: {
@@ -38,9 +35,32 @@ const bookSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  // New fields to match your browse page requirements
+  rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  reviews: {
+    type: Number,
+    default: 0
+  },
   trendingScore: {
     type: Number,
     default: 0 // used to rank in trending/top picks
+  },
+  trending: {
+    type: Boolean,
+    default: false
+  },
+  newRelease: {
+    type: Boolean,
+    default: true // New books are marked as new releases
   },
   favorites: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -55,10 +75,34 @@ const bookSchema = new mongoose.Schema({
     required: true
   },
   price: {
-    type:Number,
+    type: Number,
     required: true
   },
-  
+  // Additional fields for better browsing experience
+  tags: [{
+    type: String
+  }],
+  language: {
+    type: String,
+    default: 'English'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+});
+
+// Index for better search performance
+bookSchema.index({ title: 'text', authorName: 'text', description: 'text' });
+bookSchema.index({ genre: 1 });
+bookSchema.index({ createdAt: -1 });
+bookSchema.index({ rating: -1 });
+bookSchema.index({ trending: -1 });
+
+// Middleware to update updatedAt on save
+bookSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 export const bookModel = mongoose.model('Book', bookSchema);

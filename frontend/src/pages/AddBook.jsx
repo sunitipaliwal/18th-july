@@ -114,6 +114,15 @@ const AddBook = () => {
       // Optional: debug
       // for (let pair of submitFormData.entries()) console.log(pair[0] + ':', pair[1]);
 
+      for (let [k, v] of submitFormData.entries()) {
+  if (v instanceof File) {
+    console.log(`${k}: File(${v.name}, ${v.type}, ${v.size} bytes)`);
+  } else {
+    console.log(`${k}:`, v);
+  }
+}
+
+
       const res = await axios.post(
         "http://localhost:3000/api/book/add-book",
         submitFormData,
@@ -392,39 +401,38 @@ const AddBook = () => {
                     Book File <span className="text-red-500">*</span>
                   </label>
 
-                  <input
-                    type="file"
-                    id="book-file-input"
-                    accept=".pdf,.epub,.mobi,.txt,.doc,.docx,application/pdf,application/epub+zip,application/x-mobipocket-ebook,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) {
-                        setBookfile(f);
-                        if (errors.bookFile) {
-                          setErrors(prev => ({ ...prev, bookFile: '' }));
-                        }
-                      }
-                    }}
-                    className="hidden"
-                  />
+              <input
+  type="file"
+  id="book-file-input"
+  accept=".pdf,.epub,.mobi,.txt,.doc,.docx,application/pdf,application/epub+zip,application/x-mobipocket-ebook,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  onChange={(e) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setBookfile(f);
+      if (errors.bookFile) setErrors(prev => ({ ...prev, bookFile: '' }));
+    }
+  }}
+  className="hidden"
+/>
 
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => document.getElementById('book-file-input')?.click()}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        document.getElementById('book-file-input')?.click();
-                      }
-                    }}
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-300 ${
-                      dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
-                    }`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
+
+               <div
+  role="button"
+  tabIndex={0}
+  onClick={() => document.getElementById('book-file-input')?.click()}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      document.getElementById('book-file-input')?.click();
+    }
+  }}
+  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-300 ${
+    dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
+  }`}
+  onDragEnter={handleDrag}
+  onDragLeave={handleDrag}
+  onDragOver={handleDrag}
+  onDrop={handleDrop}
+>
                     <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-2">Drop files here or click to upload</p>
                     <p className="text-sm text-gray-500">Supports PDF, EPUB, MOBI, TXT, DOC, DOCX</p>
